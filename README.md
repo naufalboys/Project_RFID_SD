@@ -1,4 +1,4 @@
-# Project_RFID_SD
+# Project RFID SD
 Project ini adalah Project dari SDN Airlangga 1 Surabaya.
 
 Cara kerja dari Project ini :
