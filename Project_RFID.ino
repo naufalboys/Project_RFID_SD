@@ -1,4 +1,3 @@
-#include <EEPROM.h>
 #include <ESP8266WiFi.h>
 #include <SPI.h>
 #include <Wire.h>
