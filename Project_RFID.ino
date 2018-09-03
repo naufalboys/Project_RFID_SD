@@ -121,8 +121,7 @@ void setup()
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
 
-  // while wifi not connected yet, print '.'
-  // then after it connected, get out of the loop
+  // while wifi not connected yet, print '.' then after it connected, get out of the loop
   while (WiFi.status() != WL_CONNECTED) 
   {
      delay(500);
