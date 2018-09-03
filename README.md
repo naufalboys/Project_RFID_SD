@@ -1,5 +1,5 @@
 # Project RFID SD
-Project ini adalah Project dari SDN Airlangga 1 Surabaya.
+Project ini adalah Project dari SDN Airlangga 1 Surabaya
 
 Cara kerja dari Project ini :
 1.  Siswa melakukan Tap Kartu RFID nya pada Alat.
