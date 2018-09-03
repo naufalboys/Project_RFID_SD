@@ -21,23 +21,9 @@ int y = 0;
 int j = 0;
 int var1;
 
-/*
 // WiFi parameters to be configured
-const char* ssid      = "ARTiara";
-const char* password  = "tri290170";
-const char* host      = "192.168.0.4";
-*/
-
-/*
-// WiFi parameters to be configured
-const char* ssid      = "AndromaxM3Y";
-const char* password  = "matoterbaik";
-const char* host      = "192.168.1.102";
-*/
-
-// WiFi parameters to be configured
-char ssid[]           = "NEW B401-AP";
-const char* password  = "LemperAyam";
+char ssid[]           = "Your SSID";
+const char* password  = "Your Password";
 const char* host      = "b401telematics.com";
 
 void custom_clear()
