@@ -1,4 +1,7 @@
 # Project RFID SD
+
+![alt text](https://raw.githubusercontent.com/naufalboys/Project_RFID_SD/master/Project_RFID_bb.png)
+
 Project ini adalah Project dari SDN Airlangga 1 Surabaya
 
 Cara kerja dari Project ini :
