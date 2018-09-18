@@ -4,9 +4,11 @@
 #include <LiquidCrystal_I2C.h>
 #include <MFRC522.h>
 
-#define BUZZER  D3
-#define SS_PIN  D4
-#define RST_PIN D8
+//#define BUZZER  2
+#define SS_PIN  15
+#define RST_PIN 0
+#define SDA_LCD 4
+#define SCL_LCD 5
 
 WiFiClient client;
 const int httpPort = 80;
@@ -18,12 +20,162 @@ int serNum[7];
 int x = 0;
 int y = 0;
 int j = 0;
-int var1;
+int var1,var2;
+int frequency = 1;
+
+/*
+// WiFi parameters to be configured
+char ssid[]           = "AndromaxM3Y";
+const char* password  = "matoterbaik";
+const char* host      = "b401telematics.com";
+*/
 
 // WiFi parameters to be configured
-char ssid[]           = "Your SSID";
-const char* password  = "Your Password";
+char ssid[]           = "NEW B401-AP";
+const char* password  = "LemperAyam";
 const char* host      = "b401telematics.com";
+
+void setup()
+{ 
+  Serial.begin(115200);
+  SPI.begin();
+  mfrc522.PCD_Init();
+  
+  //I2C LCD SDA = D2
+  //I2C LCD SCL = D1
+  Wire.begin(SDA_LCD,SCL_LCD);
+  
+  lcd.begin();
+  lcd.backlight();
+  
+  lcd.setCursor(0,0);
+  lcd.print("Connecting to :");
+  lcd.setCursor(0,1);
+  lcd.print(String(ssid));
+  
+  // Connect to WiFi
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid, password);
+
+  // while wifi not connected yet, print '.'
+  // then after it connected, get out of the loop
+  while (WiFi.status() != WL_CONNECTED) 
+  {
+     delay(500);
+     Serial.print(".");
+  }
+
+  if (!client.connect(host, httpPort))
+  {
+    Serial.println("Connection Failed");
+    return;
+  }
+
+  if (client.connect(host, httpPort))
+  {
+    Serial.println();
+    Serial.println("Connected to : ");
+    Serial.print(host);
+    lcd.setCursor(0,0);
+    lcd.print("Connected to :");
+    lcd.setCursor(0,1);
+    lcd.print(String(host));
+  }
+  
+  //print a new line, then print WiFi connected and the IP address
+  Serial.println("");
+  Serial.println("WiFi connected");
+  // Print the IP address
+  Serial.print("IP Address : ");
+  Serial.println(WiFi.localIP());
+  Serial.println("Silahkan Scan Kartu Anda !");
+  lcd.clear();
+}
+
+void loop() 
+{
+  lcd.setCursor(0,0);
+  lcd.print("Please scan your");
+  lcd.setCursor(0,1);
+  lcd.print("Member card !");
+  
+  // Look for new cards
+  if ( ! mfrc522.PICC_IsNewCardPresent()) 
+  {
+    delay(50);
+    return;
+  }
+  // Select one of the cards
+  if ( ! mfrc522.PICC_ReadCardSerial()) 
+  {
+    delay(50);
+    return;
+  }
+
+////-------------------------------------------------RFID----------------------------------------------
+  
+  Serial.println();
+  Serial.print(" UID tag :");
+  String content= "";
+  byte letter, i;
+  for (i = 0; i < mfrc522.uid.size; i++) 
+  {
+      Serial.print(mfrc522.uid.uidByte[i] < 0x10 ? " 0" : " ");
+      Serial.print(mfrc522.uid.uidByte[i], HEX);
+      content.concat(String(mfrc522.uid.uidByte[i] < 0x10 ? " 0" : " "));
+      content.concat(String(mfrc522.uid.uidByte[i], HEX));
+  }
+  content.toUpperCase();
+  Serial.println();
+
+  //Fungsi Loading pada LCD
+  for(int a = 1; a < 2; a++)
+  {
+    custom_loading();
+    lcd.clear();
+    for(int b = 1; b <= 2; b++)
+    {
+      loading_lcd();
+    }
+    lcd.clear();
+  }
+
+  lcd.setCursor(0,0);
+  lcd.print("Mengirim Data...");
+  delay(300);
+  String ID = String(mfrc522.uid.uidByte[1], DEC);
+  Serial.print("ID = ");
+  Serial.println(ID);
+
+////-------------------------------------------------SERVER----------------------------------------------
+
+  String url = "/sdairlangga/absensi/input.php";
+  url += "?x=";
+  url += ID;
+  client.print(String("GET ") + url + " HTTP/1.1\r\n" +
+                "Host: " + host + "\r\n" +
+                "Connection: close\r\n\r\n");
+  delay(10);
+  Serial.println();
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("Data Sukses");
+  lcd.setCursor(0,1);
+  lcd.print("Dikirim");
+  delay(500);
+  Serial.println("Silahkan Selanjutnya !");
+}
+
+/*void beep(unsigned char repeat, unsigned char delay_beep)
+{
+  for (int z = 1; z <= repeat; z++)
+  {
+    noTone(BUZZER);
+    delay(delay_beep);
+    tone(BUZZER, frequency);
+    delay(delay_beep);
+  }
+}*/
 
 void custom_clear()
 {
@@ -95,173 +247,3 @@ void loading_lcd()
   }
 }
 
-void setup()
-{ 
-  Serial.begin(115200);
-  
-  pinMode(BUZZER, OUTPUT);
-  digitalWrite(BUZZER, HIGH);
-  delay(500);
-  digitalWrite(BUZZER, LOW);
-
-  //I2C LCD SDA = D2
-  //I2C LCD SCL = D1
-  Wire.begin(D2,D1);
-  
-  lcd.begin();
-  lcd.backlight();
-  
-  lcd.setCursor(0,0);
-  lcd.print("Connecting to :");
-  lcd.setCursor(0,1);
-  lcd.print(String(ssid));
-  
-  // Connect to WiFi
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid, password);
-
-  // while wifi not connected yet, print '.' then after it connected, get out of the loop
-  while (WiFi.status() != WL_CONNECTED) 
-  {
-     delay(500);
-     Serial.print(".");
-  }
-
-  if (!client.connect(host, httpPort))
-  {
-    Serial.println("Connection Failed");
-    return;
-  }
-
-  if (client.connect(host, httpPort))
-  {
-    Serial.println();
-    Serial.println("Connected to : ");
-    Serial.print(host);
-    lcd.setCursor(0,0);
-    lcd.print("Connected to :");
-    lcd.setCursor(0,1);
-    lcd.print(String(host));
-
-    for(var1 = 1; var1 <= 3; var1++)
-    {
-      digitalWrite(BUZZER, HIGH);
-      delay(250);
-      digitalWrite(BUZZER, LOW);
-    }  
-  }
-  
-  //print a new line, then print WiFi connected and the IP address
-  Serial.println("");
-  Serial.println("WiFi connected");
-  // Print the IP address
-  Serial.print("IP Address : ");
-  Serial.println(WiFi.localIP());
-  Serial.println("Silahkan Scan Kartu Anda !");
-  
-  SPI.begin();
-  mfrc522.PCD_Init();
-}
-
-void loop() 
-{
-  lcd.clear();
-  
-  digitalWrite(BUZZER, HIGH);
-  delay(750);
-  digitalWrite(BUZZER, LOW);
-  
-  lcd.setCursor(0,0);
-  lcd.print("Please scan your");
-  lcd.setCursor(0,1);
-  lcd.print("Member card !");
-  
-  if (client.connect(host, httpPort))
-  {
-    Serial.println("Client Connected");
-    if ( ! mfrc522.PICC_IsNewCardPresent()) 
-    {
-      delay(50);
-      return;
-    }
-    if ( ! mfrc522.PICC_ReadCardSerial()) 
-    {
-      delay(50);
-      return;
-    }
-
-    digitalWrite(BUZZER, HIGH);
-    delay(200);
-    digitalWrite(BUZZER, LOW);
-    
-    Serial.println();
-    Serial.print(" UID tag :");
-    String content= "";
-    byte letter, i;
-    for (i = 0; i < mfrc522.uid.size; i++) 
-    {
-       Serial.print(mfrc522.uid.uidByte[i] < 0x10 ? " 0" : " ");
-       Serial.print(mfrc522.uid.uidByte[i], HEX);
-       content.concat(String(mfrc522.uid.uidByte[i] < 0x10 ? " 0" : " "));
-       content.concat(String(mfrc522.uid.uidByte[i], HEX));
-    }
-    content.toUpperCase();
-    Serial.println();
-
-    //Fungsi Loading pada LCD
-    for(int a = 1; a < 2; a++)
-    {
-      custom_loading();
-      lcd.clear();
-      for(int b = 1; b <= 2; b++)
-      {
-        loading_lcd();
-      }
-      lcd.clear();
-      lcd.setCursor(0,0);
-      lcd.print("Success !");
-    }
-
-    lcd.setCursor(0,0);
-    lcd.print("Mengirim Data...");
-   
-    String ID = String(mfrc522.uid.uidByte[1], DEC);
-    Serial.print("ID = ");
-    Serial.println(ID);
-    
-    String url = "/sdairlangga/absensi/input.php";
-    url += "?x=";
-    url += ID;
-    client.print(String("GET ") + url + " HTTP/1.1\r\n" +
-                 "Host: " + host + "\r\n" +
-                 "Connection: close\r\n\r\n");
-    client.stop();
-    Serial.println();
-
-    lcd.setCursor(0,0);
-    lcd.print("Data Sukses");
-    lcd.setCursor(0,1);
-    lcd.print("Dikirim");
-    digitalWrite(BUZZER, HIGH);
-    delay(500);
-    digitalWrite(BUZZER, LOW);
-    delay(1000);
-    Serial.println("Silahkan Selanjutnya !");
-  }
-  
-  else
-  {
-    Serial.println("Connection error");
-    lcd.setCursor(0,0);
-    lcd.print("Connection");
-    lcd.setCursor(0,1);
-    lcd.print("Error");
-    for (var1 = 1; var1 <= 3; var1++)
-    {
-      digitalWrite(BUZZER, HIGH);
-      delay(100);
-      digitalWrite(BUZZER, LOW);
-    }
-    setup();
-  }
-}
