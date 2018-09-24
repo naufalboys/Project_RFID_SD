@@ -68,6 +68,10 @@ void setup()
   if (!client.connect(host, httpPort))
   {
     Serial.println("Connection Failed");
+    lcd.setCursor(0,0);
+    lcd.print("Connection");
+    lcd.setCursor(0,1);
+    lcd.print("Failed");
     return;
   }
 
@@ -127,7 +131,7 @@ void loop()
   }
   content.toUpperCase();
   Serial.println();
-
+  
   //Fungsi Loading pada LCD
   for(int a = 1; a < 2; a++)
   {
@@ -142,8 +146,11 @@ void loop()
 
   lcd.setCursor(0,0);
   lcd.print("Mengirim Data...");
-  delay(300);
-  String ID = String(mfrc522.uid.uidByte[1], DEC);
+  delay(700);
+  String ID = String(mfrc522.uid.uidByte[0], HEX);
+  ID += String(mfrc522.uid.uidByte[1], HEX);
+  ID += String(mfrc522.uid.uidByte[2], HEX);
+  ID += String(mfrc522.uid.uidByte[3], HEX);
   Serial.print("ID = ");
   Serial.println(ID);
 
@@ -152,17 +159,32 @@ void loop()
   String url = "/sdairlangga/absensi/input.php";
   url += "?x=";
   url += ID;
-  client.print(String("GET ") + url + " HTTP/1.1\r\n" +
-                "Host: " + host + "\r\n" +
-                "Connection: close\r\n\r\n");
-  delay(10);
+  if (client.connect(host, 80))
+  {
+    client.print(String("GET ") + url + " HTTP/1.1\r\n" +
+                  "Host: " + host + "\r\n" +
+                  "Connection: close\r\n\r\n");
+    Serial.print(String("GET ") + url + " HTTP/1.1\r\n" +
+                  "Host: " + host + "\r\n" +
+                  "Connection: close\r\n\r\n");
+    delay(10);
+  }
+  else
+  {
+    Serial.println("Connection Failed");
+    lcd.setCursor(0,0);
+    lcd.print("Connection");
+    lcd.setCursor(0,1);
+    lcd.print("Failed");
+    setup();
+  }
   Serial.println();
   lcd.clear();
   lcd.setCursor(0,0);
   lcd.print("Data Sukses");
   lcd.setCursor(0,1);
   lcd.print("Dikirim");
-  delay(500);
+  delay(1000);
   Serial.println("Silahkan Selanjutnya !");
 }
 
