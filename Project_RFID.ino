@@ -23,26 +23,26 @@ int j = 0;
 int var1,var2;
 int frequency = 1;
 
-/*
+
 // WiFi parameters to be configured
 char ssid[]           = "AndromaxM3Y";
 const char* password  = "matoterbaik";
 const char* host      = "b401telematics.com";
-*/
 
+/*
 // WiFi parameters to be configured
 char ssid[]           = "NEW B401-AP";
 const char* password  = "LemperAyam";
 const char* host      = "b401telematics.com";
+*/
 
 void setup()
 { 
   Serial.begin(115200);
   SPI.begin();
   mfrc522.PCD_Init();
-  
-  //I2C LCD SDA = D2
-  //I2C LCD SCL = D1
+]
+  //I2C SDA = D2, I2C SCL = D1
   Wire.begin(SDA_LCD,SCL_LCD);
   
   lcd.begin();
@@ -53,10 +53,16 @@ void setup()
   lcd.setCursor(0,1);
   lcd.print(String(ssid));
   
-  // Connect to WiFi
+  // Set WiFi to Station Mode, and disconnect from an AP if it was previously connected
   WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid, password);
+  WiFi.disconnect();
+  delay(200);
 
+  // Attempt to Connect to WiFi network
+  Serial.print("Connecting to : ");
+  Serial.println(ssid);
+  WiFi.begin(ssid, password);
+  
   // while wifi not connected yet, print '.'
   // then after it connected, get out of the loop
   while (WiFi.status() != WL_CONNECTED) 
@@ -154,12 +160,12 @@ void loop()
   Serial.print("ID = ");
   Serial.println(ID);
 
-////-------------------------------------------------SERVER----------------------------------------------
+////-------------------------------------------------SENDING DATA----------------------------------------------
 
   String url = "/sdairlangga/absensi/input.php";
   url += "?x=";
   url += ID;
-  if (client.connect(host, 80))
+  if (client.connect(host, httpPort))
   {
     client.print(String("GET ") + url + " HTTP/1.1\r\n" +
                   "Host: " + host + "\r\n" +
@@ -187,17 +193,6 @@ void loop()
   delay(1000);
   Serial.println("Silahkan Selanjutnya !");
 }
-
-/*void beep(unsigned char repeat, unsigned char delay_beep)
-{
-  for (int z = 1; z <= repeat; z++)
-  {
-    noTone(BUZZER);
-    delay(delay_beep);
-    tone(BUZZER, frequency);
-    delay(delay_beep);
-  }
-}*/
 
 void custom_clear()
 {
@@ -268,4 +263,3 @@ void loading_lcd()
     lcd.clear();
   }
 }
-
