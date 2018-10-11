@@ -4,11 +4,11 @@
 #include <LiquidCrystal_I2C.h>
 #include <MFRC522.h>
 
-//#define BUZZER  2   // D4
-#define SS_PIN    15  // D8
-#define RST_PIN   0   // D3
-#define SDA_LCD   4   // D2
-#define SCL_LCD   5   // D1
+//#define BUZZER  2 //D4
+#define SS_PIN  15  //D8
+#define RST_PIN 0   //D3
+#define SDA_LCD 4   //D2
+#define SCL_LCD 5   //D1
 
 WiFiClient client;
 const int httpPort = 80;
