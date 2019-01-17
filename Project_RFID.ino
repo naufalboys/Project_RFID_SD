@@ -4,11 +4,12 @@
 #include <LiquidCrystal_I2C.h>
 #include <MFRC522.h>
 
-//#define BUZZER  2 //D4
+#define BUZZER  2   //D4
 #define SS_PIN  15  //D8
 #define RST_PIN 0   //D3
 #define SDA_LCD 4   //D2
 #define SCL_LCD 5   //D1
+#define CHG_MD  16  //D0
 
 WiFiClient client;
 const int httpPort = 80;
@@ -20,30 +21,35 @@ int serNum[7];
 int x = 0;
 int y = 0;
 int j = 0;
-int var1,var2;
-int frequency = 1;
-
-
-// WiFi parameters to be configured
-char ssid[]           = "AndromaxM3Y";
-const char* password  = "matoterbaik";
-const char* host      = "b401telematics.com";
 
 /*
 // WiFi parameters to be configured
-char ssid[]           = "NEW B401-AP";
-const char* password  = "LemperAyam";
-const char* host      = "b401telematics.com";
+char ssid[]           = "AndromaxM3Y";
+const char* password  = "matoterbaik";
+const char* host      = "sdnairlangga1.com";
 */
 
+// WiFi parameters to be configured
+char ssid[]           = "NEW B401-AP";
+const char* password  = "LemperAyam";
+const char* host      = "sdnairlangga1.com";
+
+
 void setup()
-{ 
+{   
+  pinMode(CHG_MD,INPUT);
+  pinMode(BUZZER,OUTPUT);
+  
   Serial.begin(115200);
   SPI.begin();
   mfrc522.PCD_Init();
-]
+
   //I2C SDA = D2, I2C SCL = D1
   Wire.begin(SDA_LCD,SCL_LCD);
+
+  digitalWrite(BUZZER, HIGH);
+  delay(500);
+  digitalWrite(BUZZER, LOW);
   
   lcd.begin();
   lcd.backlight();
@@ -78,6 +84,15 @@ void setup()
     lcd.print("Connection");
     lcd.setCursor(0,1);
     lcd.print("Failed");
+
+    for(int z = 1; z <=5; z++)
+    {
+      digitalWrite(BUZZER, HIGH);
+      delay(50);
+      digitalWrite(BUZZER, LOW);
+      delay(50);
+    }
+      
     return;
   }
 
@@ -90,6 +105,14 @@ void setup()
     lcd.print("Connected to :");
     lcd.setCursor(0,1);
     lcd.print(String(host));
+
+    for(int z = 1; z <=3; z++)
+    {
+      digitalWrite(BUZZER, HIGH);
+      delay(100);
+      digitalWrite(BUZZER, LOW);
+      delay(100);
+    }
   }
   
   //print a new line, then print WiFi connected and the IP address
@@ -121,6 +144,10 @@ void loop()
     delay(50);
     return;
   }
+
+  digitalWrite(BUZZER, HIGH);
+  delay(500);
+  digitalWrite(BUZZER, LOW);
 
 ////-------------------------------------------------RFID----------------------------------------------
   
@@ -161,8 +188,16 @@ void loop()
   Serial.println(ID);
 
 ////-------------------------------------------------SENDING DATA----------------------------------------------
-
-  String url = "/sdairlangga/absensi/input.php";
+  String url = "";
+  if(digitalRead(CHG_MD))
+  {
+    url =  "/absensi/scan.php";
+  }
+  else
+  {
+    url =  "/absensi/input.php";
+  }
+  
   url += "?x=";
   url += ID;
   if (client.connect(host, httpPort))
@@ -182,14 +217,27 @@ void loop()
     lcd.print("Connection");
     lcd.setCursor(0,1);
     lcd.print("Failed");
+    for(int z = 1; z <=2; z++)
+    {
+      digitalWrite(BUZZER, HIGH);
+      delay(100);
+      digitalWrite(BUZZER, LOW);
+      delay(100);
+    }
     setup();
   }
+  
   Serial.println();
   lcd.clear();
   lcd.setCursor(0,0);
   lcd.print("Data Sukses");
   lcd.setCursor(0,1);
   lcd.print("Dikirim");
+
+  digitalWrite(BUZZER, HIGH);
+  delay(500);
+  digitalWrite(BUZZER, LOW);
+  
   delay(1000);
   Serial.println("Silahkan Selanjutnya !");
 }
@@ -244,12 +292,12 @@ void loading_lcd()
   {
     lcd.setCursor(x,1);
     lcd.write(i);
-    delay(25);
+    delay(10);
   }
 
   lcd.setCursor(x,1);
   lcd.write(255);
-  delay(25);
+  delay(10);
   x++;
 
   if(x < 16)
