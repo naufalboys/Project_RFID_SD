@@ -11,6 +11,6 @@ Cara kerja dari Project ini :
 4.  Kemudian akan ada tampilan pada LCD bahwa Siswa tersebut telah berhasil masuk/keluar.
 
 Note : 
-1. Jangan lupa memilih Board Generic ESP8266 Module pada Arduino dengan Reset Method Nodemcu.
+1. Jangan lupa memilih Board NodeMCU (ESP-12E) pada Board di Arduino IDE.
 2. Jangan lupa untuk mengganti codingan dengan SSID Wifi dan Password sesuai dengan Wifi yang tersedia.
 3. Library yang digunakan adalah ESP8266Wifi, SPI, Wire, LiquidCrystal_I2C, MFRC522.
