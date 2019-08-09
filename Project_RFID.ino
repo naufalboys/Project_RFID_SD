@@ -23,17 +23,12 @@ int y = 0;
 int j = 0;
 
 // WiFi parameters to be configured
-char ssid[]            = "guru";
-const char* password   = "airone198";
-char ssid2[]           = "Operator Sekolah";
-const char* password2  = "airone198";
-char ssid3[]           = "PERPUSTAKAAN";
-const char* password3  = "air198oke";
-char ssid4[]           = "NEW B401-AP";
-const char* password4  = "B401KomputasiMultimedia";
-char ssid5[]           = "Aula Pertemuan";
-const char* password5  = "airone198";
-const char* host       = "sdnairlangga1.com";
+char ssid[]            = "ssid1";
+const char* password   = "pass1";
+char ssid2[]           = "ssid2";
+const char* password2  = "pass2";
+char ssid3[]           = "ssid3";
+const char* password3  = "pass3";
 
 void setup()
 {
@@ -63,11 +58,9 @@ void setup()
   WiFi.disconnect();
   delay(200);
 
-  //WiFiMulti.addAP(ssid, password);
-  //WiFiMulti.addAP(ssid2, password2);
-  //WiFiMulti.addAP(ssid3, password3);
-  WiFiMulti.addAP(ssid4, password4);
-  WiFiMulti.addAP(ssid5, password5);
+  WiFiMulti.addAP(ssid, password);
+  WiFiMulti.addAP(ssid2, password2);
+  WiFiMulti.addAP(ssid3, password3);
 
   // while wifi not connected yet, print '.'
   // then after it connected, get out of the loop
