@@ -148,17 +148,17 @@ void loop()
   String url = "";
   if (digitalRead(CHG_MD))
   {
-    url =  "http://www.sdnairlangga1.com/absensi/scan.php";
+    url =  "http://www.(websiteanda).com/absensi/scan.php";
   }
   else
   {
-    url =  "http://www.sdnairlangga1.com/absensi/input.php";
+    url =  "http://www.(websiteanda).com/absensi/input.php";
   }
 
   url += "?x=";
   url += ID;
 
-  String url2 = "http://www.sdnairlangga1.com/absensi/lihat.php";
+  String url2 = "http://www.(websiteanda).com/absensi/lihat.php";
   url2 += "?x=";
   url2 += ID;
 
